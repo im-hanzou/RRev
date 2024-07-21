@@ -17,7 +17,8 @@ def print_banner():
      | | \ \| | \ \  __/\ V / 
      |_|  \_\_|  \_\___| \_/  
                           
-        {Fore.RED}Github: IM-Hanzou
+        {Fore.RED}RapidDNS ReverseIP
+        Github: IM-Hanzou
 {Style.RESET_ALL}
 """
     print(banner)
