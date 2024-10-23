@@ -32,21 +32,32 @@ def process_reversing(ips):
             ip = ip.strip()
             if ip.startswith(('http://', 'https://')):
                 ip = re.sub(r'^https?://', '', ip)
-            response = session.get(f'https://rapiddns.io/sameip/{ip}?full=1#result', headers=header, verify=True).content.decode('utf-8')
-            results = re.findall(r'</th>\n<td>(.*?)</td>', response)
-            num_results = len(results)
-            status = 'Failed' if num_results == 0 else num_results
-            color = Fore.GREEN if num_results > 0 else Fore.RED
-            print(f'{color}[#] Reversed {Fore.MAGENTA}{ip}{Style.RESET_ALL} {color}=>{Style.RESET_ALL} {Fore.YELLOW}{status}{Style.RESET_ALL} {color}domains [#]{Style.RESET_ALL}')
-            
-            for result in results:
-                result = result.strip()
-                if result.startswith('www.'):
-                    result = result[4:]
-                if result not in domain_list:
-                    domain_list.append(result)
-                    with open('results.txt', 'a+') as file:
-                        file.write(result + '\n')
+            total_domains = 0
+            for page in range(1, 101):
+                print(f"{Fore.LIGHTBLUE_EX}[*] Reversing {ip} - Page {page}{Style.RESET_ALL}")
+
+                response = session.get(f'https://rapiddns.io/s/{ip}?full=1&page={page}', headers=header, verify=True).content.decode('utf-8')
+                results = re.findall(r'</th>\n<td>(.*?)</td>', response)
+                num_results = len(results)
+                total_domains += num_results
+
+                if num_results == 0:
+                    print(f"{Fore.LIGHTRED_EX}[!] No more results on page {page}. Stopping for {ip}.{Style.RESET_ALL}")
+                    break
+                print(f"{Fore.LIGHTGREEN_EX}[#] Found {num_results} domains on Page {page} for {ip}{Style.RESET_ALL}")
+
+                for result in results:
+                    result = result.strip()
+                    if result.startswith('www.'):
+                        result = result[4:]
+                    if result not in domain_list:
+                        domain_list.append(result)
+                        with open('results.txt', 'a+') as file:
+                            file.write(result + '\n')
+
+            color = Fore.GREEN if total_domains > 0 else Fore.RED
+            status = 'Failed' if total_domains == 0 else total_domains
+            print(f'{color}[#] Reversed {Fore.MAGENTA}{ip}{Style.RESET_ALL} {color}=>{Style.RESET_ALL} {Fore.YELLOW}{status}{Style.RESET_ALL} {color}total domains [#]{Style.RESET_ALL}')
     except Exception as e:
         print(f'{Fore.RED}Error: {e}{Style.RESET_ALL}')
 
@@ -69,7 +80,7 @@ def start_reverse_lookup():
         for thread in threads:
             thread.join()
         
-        print(f"{Fore.LIGHTYELLOW_EX}\nRevese IP Lookup completed.{Style.RESET_ALL}\n{Fore.YELLOW}Results saved to {Fore.LIGHTCYAN_EX}results.txt{Style.RESET_ALL}")
+        print(f"{Fore.LIGHTYELLOW_EX}\nReverse IP Lookup completed.{Style.RESET_ALL}\n{Fore.YELLOW}Results saved to {Fore.LIGHTCYAN_EX}results.txt{Style.RESET_ALL}")
     except Exception as e:
         print(f'{Fore.RED}Error: {e}{Style.RESET_ALL}')
 
