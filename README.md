@@ -4,7 +4,7 @@
 Please use [Python3](https://www.python.org/ftp/python/3.12.4/python-3.12.4-amd64.exe) or `sudo apt-get install python3`
 - Install required modules
 ```
-pip install requests fake-useragent colorama
+pip install pycurl fake-useragent colorama
 ```
 - Run the script
 ```
